@@ -5,13 +5,13 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	// "github.com/gomodule/redigo/redis"
+	//"golang.org/x/crypto/acme/autocert"
 )
 
 func twilioAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		return next(c)
-		//return c.String(http.StatusUnauthorized, "You're not Twilio")
+		//return next(c)
+		return c.String(http.StatusUnauthorized, "You're not Twilio")
 	}
 }
 
@@ -32,5 +32,5 @@ func main() {
 	twilioGroup.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, Twilio!")
 	})
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.StartTLS(":"+port, certFile, keyFile))
 }
