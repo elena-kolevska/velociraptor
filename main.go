@@ -1,34 +1,18 @@
 package main
 
 import (
+	"github.com/elena-kolevska/velociraptor/middleware/twilio"
 	"net/http"
 
-	"github.com/elena-kolevska/velociraptor/middleware/twilio"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	//"github.com/gomodule/redigo/redis"
 )
 
-func twilioAuth(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		if releaseStage != "localhost" {
-			scheme := "http"
-			if c.IsTLS() {
-				scheme = "https"
-			}
-
-			formParameters, err := c.FormParams()
-			if err != nil {
-				return c.String(http.StatusUnauthorized, "Something's wrong with your request")
-			}
-
-			if twilio.IsValidTwilioSignature(scheme, c.Request().Host, twilioAPIToken, c.Request().RequestURI, formParameters, c.Request().Header.Get("X-Twilio-Signature")) == false {
-				return c.String(http.StatusUnauthorized, "You're not Twilio")
-			}
-		}
-
-		return next(c)
-	}
-}
+//var (
+//	pool      = newPool()
+//	redisConn = pool.Get()
+//)
 
 func main() {
 	e := echo.New()
@@ -42,10 +26,27 @@ func main() {
 	})
 
 	twilioGroup := e.Group("/twilio")
-	twilioGroup.Use(twilioAuth)
+	twilioGroup.Use(twilio.Auth)
 
-	twilioGroup.GET("/", func(c echo.Context) error {
+	twilioGroup.POST("/", func(c echo.Context) error {
+		// Parse request
+		//
 		return c.String(http.StatusOK, "Hello, Twilio!")
 	})
 	e.Logger.Fatal(e.StartTLS(":"+port, certFile, keyFile))
 }
+
+
+//func newPool() *redis.Pool {
+//	return &redis.Pool{
+//		MaxIdle:   20,
+//		MaxActive: 1000, // max number of connections
+//		Dial: func() (redis.Conn, error) {
+//			c, err := redis.Dial("tcp", redisHost+":"+redisPort)
+//			if err != nil {
+//				panic(err.Error())
+//			}
+//			return c, err
+//		},
+//	}
+//}
