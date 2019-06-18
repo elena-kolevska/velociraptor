@@ -3,15 +3,30 @@ package main
 import (
 	"net/http"
 
+	"github.com/elena-kolevska/velociraptor/middleware/twilio"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	//"golang.org/x/crypto/acme/autocert"
 )
 
 func twilioAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		//return next(c)
-		return c.String(http.StatusUnauthorized, "You're not Twilio")
+		if releaseStage != "localhost" {
+			scheme := "http"
+			if c.IsTLS() {
+				scheme = "https"
+			}
+
+			formParameters, err := c.FormParams()
+			if err != nil {
+				return c.String(http.StatusUnauthorized, "Something's wrong with your request")
+			}
+
+			if twilio.IsValidTwilioSignature(scheme, c.Request().Host, twilioAPIToken, c.Request().RequestURI, formParameters, c.Request().Header.Get("X-Twilio-Signature")) == false {
+				return c.String(http.StatusUnauthorized, "You're not Twilio")
+			}
+		}
+
+		return next(c)
 	}
 }
 
