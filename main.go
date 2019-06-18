@@ -1,7 +1,10 @@
 package main
 
 import (
+	"github.com/elena-kolevska/velociraptor/clients"
+	"github.com/elena-kolevska/velociraptor/config"
 	"github.com/elena-kolevska/velociraptor/middleware/twilio"
+	"log"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -15,6 +18,23 @@ import (
 //)
 
 func main() {
+
+	log.Println("Acquiring access token from the destination API...")
+	client := clients.ModelLifeClient{
+		BaseURL:               config.ApiBaseURL,
+		GetTokenURL:           config.ApiTokenPath,
+		UpdateConversationURL: config.ApiUpdateConversationPath,
+		ClientID:              config.ApiClientID,
+		ClientSecret:          config.ApiClientSecret,
+		HttpClient:            http.Client{},
+	}
+	err := client.GetAccessToken()
+	if err != nil {
+		log.Fatal("We couldn't get an access token from the remote API")
+	}
+	log.Println("Done.")
+	log.Println("Starting server...")
+
 	e := echo.New()
 
 	e.Pre(middleware.AddTrailingSlash())
@@ -30,12 +50,11 @@ func main() {
 
 	twilioGroup.POST("/", func(c echo.Context) error {
 		// Parse request
-		//
 		return c.String(http.StatusOK, "Hello, Twilio!")
 	})
-	e.Logger.Fatal(e.StartTLS(":"+port, certFile, keyFile))
-}
 
+	e.Logger.Fatal(e.StartTLS(":"+config.EnvPort, config.EnvCertFile, config.EnvKeyFile))
+}
 
 //func newPool() *redis.Pool {
 //	return &redis.Pool{

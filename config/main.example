@@ -1,0 +1,27 @@
+package config
+
+const (
+	// Velociraptor
+	EnvReleaseStage = "localhost"
+	EnvPort         = "8081"
+	EnvCertFile = ""
+	EnvKeyFile = ""
+
+	// Redis
+	RedisHost = "127.0.0.1"
+	RedisPort = "6379"
+	RedisAuth = ""
+
+	// API details
+	ApiClientID = ""
+	ApiClientSecret = ""
+	ApiBaseURL = "http://modellife.test/api/v1"
+	ApiTokenPath = "/oauth/token"
+	ApiUpdateConversationPath = "/conversations/chat-service-id"
+
+	// Bugsnag Service: Bug monitoring and reporting
+	ServicesBugsnagAPIKey = ""
+
+	//Twilio credentials
+	ServicesTwilioAPIToken = ""
+)

@@ -4,6 +4,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/base64"
+	"github.com/elena-kolevska/velociraptor/config"
 	"github.com/labstack/echo"
 	"net/http"
 	"net/url"
@@ -12,7 +13,7 @@ import (
 
 func Auth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		if releaseStage != "localhost" {
+		if config.EnvReleaseStage != "localhost" {
 			scheme := "http"
 			if c.IsTLS() {
 				scheme = "https"
@@ -23,8 +24,8 @@ func Auth(next echo.HandlerFunc) echo.HandlerFunc {
 				return c.String(http.StatusUnauthorized, "Something's wrong with your request")
 			}
 
-			if twilio.isValidTwilioSignature(scheme, c.Request().Host, twilioAPIToken, c.Request().RequestURI, formParameters, c.Request().Header.Get("X-Twilio-Signature")) == false {
-				return c.String(http.StatusUnauthorized, "You're not Twilio")
+			if isValidTwilioSignature(scheme, c.Request().Host, config.ServicesTwilioAPIToken, c.Request().RequestURI, formParameters, c.Request().Header.Get("X-Twilio-Signature")) == false {
+				return c.String(http.StatusUnauthorized, "Hey, you're not Twilio!")
 			}
 		}
 
