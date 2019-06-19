@@ -2,6 +2,7 @@ package requests
 
 import (
 	"github.com/elena-kolevska/velociraptor/clients"
+	"github.com/elena-kolevska/velociraptor/config"
 	"github.com/gomodule/redigo/redis"
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
@@ -53,7 +54,7 @@ func (w *Webhook) HandleOnMessageSent(r redis.Conn, c clients.Client) {
 
 	key := "last-activity:" + w.channelSid
 
-	val, _ := r.Do("SET", key, 1, "NX", "EX", "60")
+	val, _ := r.Do("SET", key, 1, "NX", "EX", config.ApiRefreshRate)
 
 	if val == "OK" {
 		err := c.UpdateLastActivity(&w.channelSid, &w.timestamp)

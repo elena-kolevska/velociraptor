@@ -1,6 +1,9 @@
-# Message Interceptor Microservice
+# Webhook Rate Limiter Microservice
 
-A lightweight interceptor service written in [Go](https://golang.org/) for messages exchanged in the commune X conversations.
+A lightweight interceptor service written in [Go](https://golang.org/) meant to serve as a rate limiter for webhooks from external services.  
+Originally I built it for Twilio Chat webhooks, because the project I was working on didn't have another way to sort chats by last activity, and we didn't want to ping the API (a full blown Laravel app) for every  webhook.  
+
+In its heart, the microservice uses Redis keys with a configurable expiration time. [TODO]
 
 ## Features:
 
