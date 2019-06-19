@@ -11,8 +11,8 @@ import (
 	"strings"
 )
 
-// ModelLifeClient struct
-type ModelLifeClient struct {
+// ModelLifeApi struct
+type ModelLifeApi struct {
 	BaseURL               string
 	GetTokenURL           string
 	UpdateConversationURL string
@@ -25,7 +25,7 @@ type ModelLifeClient struct {
 
 // GetAccessToken sends a PUT request to the commune X API,
 // updating the last activity timestamp of a certain conversation
-func (c *ModelLifeClient) GetAccessToken() (err error) {
+func (c *ModelLifeApi) GetAccessToken() (err error) {
 	urlStr := c.BaseURL + c.GetTokenURL
 
 	data := url.Values{}
@@ -56,9 +56,9 @@ func (c *ModelLifeClient) GetAccessToken() (err error) {
 }
 
 //UpdateLastActivity sends a request to the API to update a conversations's updated_at timestamp
-func (c ModelLifeClient) UpdateLastActivity(channelID *string, timestamp *int64) (err error) {
+func (c *ModelLifeApi) UpdateLastActivity(channelID *string, timestamp *int64) (err error) {
 	urlStr := c.BaseURL + c.UpdateConversationURL + "/" + *channelID
-
+	log.Printf("val for url string: %s", urlStr)
 	data := url.Values{}
 	data.Add("timestamp", strconv.FormatInt(*timestamp, 10))
 
@@ -70,6 +70,7 @@ func (c ModelLifeClient) UpdateLastActivity(channelID *string, timestamp *int64)
 
 	if resp.StatusCode != 200 {
 		responseData, err := ioutil.ReadAll(resp.Body)
+		log.Println(string(responseData))
 		if err != nil {
 			return err
 		}
