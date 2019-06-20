@@ -58,7 +58,6 @@ func (c *ModelLifeApi) GetAccessToken() (err error) {
 //UpdateLastActivity sends a request to the API to update a conversations's updated_at timestamp
 func (c *ModelLifeApi) UpdateLastActivity(channelID *string, timestamp *int64) (err error) {
 	urlStr := c.BaseURL + c.UpdateConversationURL + "/" + *channelID
-	log.Printf("val for url string: %s", urlStr)
 	data := url.Values{}
 	data.Add("timestamp", strconv.FormatInt(*timestamp, 10))
 

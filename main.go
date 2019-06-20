@@ -22,12 +22,7 @@ func main() {
 
 	// Redis Setup
 	defer redisConn.Close()
-	if config.RedisAuth != "" {
-		_, err := redisConn.Do("AUTH", config.RedisAuth)
-		if err != nil {
-			panic(err.Error())
-		}
-	}
+	authenticateWithRedis()
 
 	log.Println("Acquiring access token from the destination API...")
 	client := clients.ModelLifeApi{
@@ -48,6 +43,8 @@ func main() {
 
 	//// SERVER ////
 	e := echo.New()
+	e.HideBanner = true
+
 
 	e.Pre(middleware.AddTrailingSlash())
 	e.Pre(middleware.Recover())
@@ -61,14 +58,22 @@ func main() {
 	twilioGroup.POST("/", func(c echo.Context) error {
 		t := requests.Webhook{}
 		t.ParsePayload(c)
-		t.HandleOnMessageSent(redisConn, &client)
-		return c.String(http.StatusOK, "Thanks, Twilio!")
+		switch t.EventType {
+		case "onMessageSent":
+			go t.HandleOnMessageSent(redisConn, &client) // Execute call to the remote API in a go routine (async)
+			return c.String(http.StatusOK, "Thanks, Twilio!")
+		default:
+			return c.String(http.StatusOK, "Unsupported webhook type")
+		}
+
+
 	})
 
 	e.Logger.Fatal(e.StartTLS(":"+config.EnvPort, config.EnvCertFile, config.EnvKeyFile))
 }
 
 func newPool() *redis.Pool {
+	log.Println("Connecting to Redis...")
 	return &redis.Pool{
 		MaxIdle:   20,
 		MaxActive: 1000, // max number of connections
@@ -80,4 +85,16 @@ func newPool() *redis.Pool {
 			return c, err
 		},
 	}
+}
+
+func authenticateWithRedis () {
+	if config.RedisAuth != "" {
+		log.Println("Authenticating with Redis...")
+
+		_, err := redisConn.Do("AUTH", config.RedisAuth)
+		if err != nil {
+			panic(err.Error())
+		}
+	}
+
 }

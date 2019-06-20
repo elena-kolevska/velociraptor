@@ -7,7 +7,7 @@ import (
 )
 
 type Webhook struct {
-	eventType  string
+	EventType  string
 	from       int64
 	timestamp  int64
 	channelSid string

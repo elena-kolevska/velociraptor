@@ -43,7 +43,7 @@ func (w *Webhook) ParsePayload(c echo.Context) {
 	from, _ := strconv.ParseInt(c.FormValue("From"), 0, 64) // Convert the service-provided timestamp to a unix timestamp
 
 	w.from = from
-	w.eventType = eventType
+	w.EventType = eventType
 	w.source = "twilio"
 	w.channelSid = c.FormValue("ChannelSid")
 
@@ -59,7 +59,7 @@ func (w *Webhook) HandleOnMessageSent(r redis.Conn, c clients.Client) {
 	if val == "OK" {
 		err := c.UpdateLastActivity(&w.channelSid, &w.timestamp)
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
 		}
 	}
 }
