@@ -18,6 +18,7 @@ const (
 	ApiBaseURL = "http://modellife.test/api/v1"
 	ApiTokenPath = "/oauth/token"
 	ApiUpdateConversationPath = "/conversations/chat-service-id"
+	ApiRefreshRate = "60" // in seconds
 
 	// Bugsnag Service: Bug monitoring and reporting
 	ServicesBugsnagAPIKey = ""
