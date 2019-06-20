@@ -3,6 +3,7 @@ package clients
 import (
 	"encoding/json"
 	"errors"
+	"github.com/elena-kolevska/velociraptor/config"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -106,4 +107,22 @@ type Token struct {
 	ExpiresIn    int32  `json:"expires_in"`
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
+}
+
+func InstantiateClient() (Client, error) {
+	client := ModelLifeApi{
+		BaseURL:               config.ApiBaseURL,
+		GetTokenURL:           config.ApiTokenPath,
+		UpdateConversationURL: config.ApiUpdateConversationPath,
+		ClientID:              config.ApiClientID,
+		ClientSecret:          config.ApiClientSecret,
+		HttpClient:            http.Client{},
+	}
+	err := client.GetAccessToken()
+	if err != nil {
+		log.Fatal("We couldn't get an access token from the remote API")
+		return &ModelLifeApi{}, err
+	}
+
+	return &client, nil
 }
